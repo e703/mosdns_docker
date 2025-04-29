@@ -2,15 +2,15 @@ http:
   pprof:
     port: 6060
     enabled: false
-  address: 0.0.0.0:3444
+  address: 0.0.0.0:80
   session_ttl: 720h
 users:
   - name: alan
-    password: $2a$05$mgKcQjf8w3rUDpvtbLuxtu.BlzPR3Xrfw1bB.MtMVNkQgba0Fczzq
+    password: $2a$10$w0rbbZGfQcCFawpaS/K2h.5/0z9vM3vEHnq.Bj6zb3GsGW4ZramS2
 auth_attempts: 5
 block_auth_min: 15
 http_proxy: ""
-language: zh-cn
+language: ""
 theme: auto
 dns:
   bind_hosts:
@@ -153,6 +153,10 @@ filters:
     url: https://raw.githubusercontent.com/banbendalao/ADgk/master/ADgk.txt
     name: ADgk百度广告过滤
     id: 139789133
+  - enabled: true
+    url: https://adguard.yojigen.tech/HalfLifeList.txt
+    name: half-life
+    id: 1744772419
 whitelist_filters: []
 user_rules:
   - '@@mp4.ts'
@@ -259,15 +263,15 @@ filtering:
   blocking_mode: default
   parental_block_host: family-block.dns.adguard.com
   safebrowsing_block_host: standard-block.dns.adguard.com
-  rewrites:
+  rewrites: []
   safe_fs_patterns:
-    - /opt/AdGuardHome/data/userfilters/*
+    - /opt/adguardhome/work/userfilters/*
   safebrowsing_cache_size: 1048576
   safesearch_cache_size: 1048576
   parental_cache_size: 1048576
   cache_time: 30
-  filters_update_interval: 12
-  blocked_response_ttl: 60
+  filters_update_interval: 24
+  blocked_response_ttl: 10
   filtering_enabled: true
   parental_enabled: false
   safebrowsing_enabled: false
@@ -279,94 +283,7 @@ clients:
     rdns: true
     dhcp: true
     hosts: true
-  persistent:
-    - safe_search:
-        enabled: false
-        bing: false
-        duckduckgo: false
-        ecosia: false
-        google: false
-        pixabay: false
-        yandex: false
-        youtube: false
-      blocked_services:
-        schedule:
-          time_zone: UTC
-        ids: []
-
-      tags:
-        - device_other
-      upstreams: []
-      uid: 018e16d0-c02b-7695-bfcc-09b20a7327b6
-      upstreams_cache_size: 0
-      upstreams_cache_enabled: false
-      use_global_settings: false
-      filtering_enabled: false
-      parental_enabled: false
-      safebrowsing_enabled: false
-      use_global_blocked_services: true
-      ignore_querylog: false
-      ignore_statistics: false
-    - safe_search:
-        enabled: false
-        bing: true
-        duckduckgo: true
-        ecosia: false
-        google: true
-        pixabay: true
-        yandex: true
-        youtube: true
-      blocked_services:
-        schedule:
-          time_zone: UTC
-        ids: []
-      name: YanJiao-DNS-01
-      ids:
-        - 172.16.1.5
-        - 2c:55:d3:b0:bd:da
-      tags:
-        - os_linux
-      upstreams: []
-      uid: 018e16d0-c02b-76dc-a6a9-05b8fc535a59
-      upstreams_cache_size: 0
-      upstreams_cache_enabled: false
-      use_global_settings: false
-      filtering_enabled: false
-      parental_enabled: false
-      safebrowsing_enabled: false
-      use_global_blocked_services: true
-      ignore_querylog: true
-      ignore_statistics: true
-    - safe_search:
-        enabled: false
-        bing: false
-        duckduckgo: false
-        ecosia: false
-        google: false
-        pixabay: false
-        yandex: false
-        youtube: false
-      blocked_services:
-        schedule:
-          time_zone: UTC
-        ids: []
-      name: nina-Iphones
-      ids:
-        - 172.16.0.210
-        - 172.16.0.211
-      tags:
-        - device_phone
-      upstreams: []
-      uid: 018e16d0-c02b-7700-8110-1ebfff8c6132
-      upstreams_cache_size: 0
-      upstreams_cache_enabled: false
-      use_global_settings: false
-      filtering_enabled: false
-      parental_enabled: false
-      safebrowsing_enabled: false
-      use_global_blocked_services: true
-      ignore_querylog: false
-      ignore_statistics: false
+  persistent: []
 log:
   enabled: true
   file: ""
