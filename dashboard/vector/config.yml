@@ -1,84 +1,57 @@
 data_dir: /tmp/vector
 
 sources:
-  mosdns-log-file:
+  mosdns_logs:
     type: file
     include:
       - /var/log/mosdns.log
     read_from: beginning
 
 transforms:
-  mosdns-input:
-    type: filter
-    inputs:
-      - mosdns-log-file
-    condition: |
-      .file == "/var/log/mosdns.log"      
-
-  mosdns-data:
+  parsed_logs:
     type: remap
     inputs:
-      - mosdns-input
-    drop_on_error: true
+      - mosdns_logs
+    drop_on_error: true 
     source: |
-      .type = "mosdns"
       .app = "mosdns"
-      del(.host)
-      del(.file)
-      del(.source_type)
+      
+      # 增加安全防护：确认 .message 存在且为字符串才进行解析
+      if exists(.message) && is_string(.message) {
+          # 修复 E620：去掉 split 的感叹号
+          parts = split(string!(.message), "\t")
+          
+          # 确保数组长度足够，防止越界
+          if length(parts) >= 4 {
+              .Time = parse_timestamp(parts[0], "%Y-%m-%dT%H:%M:%S%.fZ") ?? now()
+              .level = parts[1]
+              .processor = parts[2]    
+              .message = parts[3]      
 
-      message_parts = split!(.message, r'\t')
+              if exists(parts[4]) {
+                  metadata = parse_json(parts[4]) ?? {}
+                  . = merge!(., metadata)
+              }
 
-      .timestamp = parse_timestamp!(message_parts[0], format: "%FT%T%.9fZ")
-      .level = message_parts[1]
-
-      if (length(message_parts) == 6) {
-        .plugin = message_parts[2]
-        .processor = message_parts[3]
-        .message = message_parts[4]
-
-        if (exists(message_parts[5])) {
-          .metadata = parse_json!(message_parts[5])
-          . = merge!(., .metadata)
-          del(.metadata)
-        }
-      } else {
-        .processor = message_parts[2]
-        .message = message_parts[3]
-
-        if (exists(message_parts[4])) {
-          .metadata = parse_json!(message_parts[4])
-          . = merge!(., .metadata)
-          del(.metadata)
-        }
+              if exists(.query) {
+                  query_data = parse_regex(.query, r'^(?P<domain>\S+)\s+(?P<class>\S+)\s+(?P<record>\S+)\s+from\s+(?P<client_ip>[^:]+)') ?? {}
+                  
+                  if exists(query_data.domain) {
+                      domain_str = string!(query_data.domain)
+                      .qname = replace(domain_str, r'\.$', "")
+                      .client = query_data.client_ip
+                  }
+              }
+          }
       }
 
-      if (exists(.query)) {
-        query_parts = split!(.query, r'\s')
-        .domain = query_parts[0]
-        .record = query_parts[2]
-        .address = query_parts[5]
-      }      
-
 sinks:
-  # 同步到 loki，根据实际情况修改 endpoint 的值
-  loki:
+  loki_sink:
     type: loki
     inputs:
-      - mosdns-data
-    endpoint: 'http://loki:3100'
+      - parsed_logs
+    endpoint: "http://loki:3100"
     encoding:
       codec: json
     labels:
-      app: '{{ app }}'
-      type: '{{ type }}'
-    healthcheck:
-      enabled: true
-
-  # 临时输出转换数据到 vector 控制台（生产环境请禁用）
-  # debug_mosdns:
-  #   type: console
-  #   inputs:
-  #     - mosdns-data
-  #   encoding:
-  #     codec: json
+      app: "mosdns"
