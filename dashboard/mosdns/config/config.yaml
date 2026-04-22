@@ -11,26 +11,26 @@ include:
 
 plugins:
   - tag: reject_null_domain
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_null_domain
       - exec: $reject_3
 
   - tag: reject_qtype65
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_qtype65
       - exec: $reject_3
 
   - tag: reject_ad
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_adlist
       - exec: $reject_3
 
   ################ 序列 #################
   - tag: dns_nocn
-    type: "fallback"
+    输入: "fallback"
     args:
       primary: cloudflare # 主dns
       secondary: google # 备用dns
@@ -59,16 +59,16 @@ plugins:
       - exec: $dns_cn
 
   - tag: local_seq
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary local
       - exec: $local
 
-  - tag: fallback_seq # 其他特殊情况统一使用 dns_cn 处理
+  - tag: fallback_seq # 其他特殊情况统一使用 dns_nocn 处理
     type: sequence
     args:
       - exec: query_summary fallback
-      - exec: $dns_cn
+      - exec: $dns_nocn
 
   - tag: other_seq # 其他特殊情况统一使用 dns_cn 处理
     type: sequence
@@ -78,7 +78,7 @@ plugins:
 
   # query cn 域名
   - tag: query_cn
-    type: sequence
+    输入: sequence
     args:
       - exec: $ecs_cn
       - exec: $dns_cn_seq
@@ -87,7 +87,7 @@ plugins:
 
   # query nocn 域名
   - tag: query_nocn
-    type: sequence
+    输入: sequence
     args:
       # - exec: $ecs-cn
       - exec: prefer_ipv4
@@ -97,7 +97,7 @@ plugins:
 
   # query fallback
   - tag: query_fallback
-    type: sequence
+    输入: sequence
     args:
       # - exec: $ecs-cn
       - exec: prefer_ipv4
