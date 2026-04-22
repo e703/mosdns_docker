@@ -17,9 +17,7 @@ unofficial mosdns docker image
   - 删除对MOSDNS V4的支持，仅适配最新版本5.3.4
   - 更新时间：2026年4月22日
   - 使用的 Grafana dashboard：22005
-  - https://grafana.com/grafana/dashboards/22005-mosdnsv7/
-  - 效果图如下：
-    ![图片名][1]
-[1]:https://grafana.com/api/dashboards/22005/images/17148/image
-  - 
+  - [访问地址](https://grafana.com/grafana/dashboards/22005-mosdnsv7)
+  - 效果图如下：![image.png](https://cdn.jsdelivr.net/gh/e703/note-gen-image-sync@main/2026-04/920c0f69-b8c4-48b0-945e-b671183bc07f.png)
+ 
 
