@@ -19,8 +19,7 @@ unofficial mosdns docker image
   - 使用的 Grafana dashboard：22005
   - https://grafana.com/grafana/dashboards/22005-mosdnsv7/
   - 效果图如下：
-  - 插入网络图片01（MD专用格式）
-[效果图](https://grafana.com/api/dashboards/22005/images/17148/image)](https://grafana.com/api/dashboards/22005/images/17148/image)
+[效果图](https://grafana.com/api/dashboards/22005/images/17148/image)]
   - 
   - 
 
