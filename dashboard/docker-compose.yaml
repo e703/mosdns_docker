@@ -60,6 +60,7 @@ services:
       - loki
 
   loki:
+    container_name: loki
     image: grafana/loki:2.9.2
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
