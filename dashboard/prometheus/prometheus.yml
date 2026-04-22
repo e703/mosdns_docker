@@ -3,10 +3,9 @@ global:
   evaluation_interval: 1m
 
 scrape_configs:
-  - job_name: mosdns
-    scrape_interval: 5s
-    #scrape_timeout: 10s
-    # metrics_path: /metrics
+  - job_name: 'mosdns'
     static_configs:
+      # 注意：由于 Mosdns 在 host 网络，Prometheus 在 loki 桥接网络
+      # 如果 127.0.0.1 不通，请填入宿主机的实际局域网 IP（如 192.168.x.x:8338）
       - targets:
           - 192.168.1.1:8338 # mosdns 监听地址
