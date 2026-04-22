@@ -8,26 +8,26 @@ include:
 
 plugins:
   - tag: reject_null_domain
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_null_domain
       - exec: $reject_3
 
   - tag: reject_qtype65
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_qtype65
       - exec: $reject_3
 
   - tag: reject_ad
-    type: sequence
+    输入: sequence
     args:
       - exec: query_summary reject_ad
       - exec: $reject_3
 
   ################ 序列 #################
   - tag: dns_nocn
-    type: "fallback"
+    输入: "fallback"
     args:
       primary: cloudflare # 主dns
       secondary: google # 备用dns
@@ -61,11 +61,11 @@ plugins:
       - exec: query_summary local
       - exec: $local
 
-  - tag: other_seq # 其他特殊情况统一使用 dns_cn 处理
+  - tag: fallback_seq # 其他特殊情况统一使用 dns_nocn 处理
     type: sequence
     args:
-      - exec: query_summary other
-      - exec: $dns_cn
+      - exec: query_summary fallback
+      - exec: $dns_nocn
 
   # query cn 域名
   - tag: query_cn
@@ -98,26 +98,26 @@ plugins:
 
   # 其他所有情况
   - tag: query_other 
-    type: sequence
+    输入: sequence
     args:
       # - exec: $no_ecs 
       - exec: $other_seq
 
   - tag: pre_handle
-    type: sequence
+    输入: sequence
     args:
       - exec: $ttl_1h # ttl 1h
       - exec: accept # 接受响应,终止流程
 
   - tag: main_handle
-    type: sequence
+    输入: sequence
     args:
       - exec: $ttl_5m # ttl 5min
       - exec: accept # 接受响应,终止流程
 
   # pre_sequence 结果处理 
   - tag: has_resp_pre
-    type: sequence
+    输入: sequence
     args:
       - matches: has_resp # 如果 pre 序列已有响应
         exec: goto pre_handle
