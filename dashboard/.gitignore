@@ -1,0 +1,14 @@
+# mosdns geo 数据（由 update_geo_dat.sh 动态生成/更新，不入版本库）
+mosdns/config/dat/
+
+# update_geo_dat.sh 运行产生的备份
+mosdns/config/dat.bak.*
+
+# v2dat 二进制（平台相关，不入版本库；新机器部署见 README）
+# 脚本会自动查找 PATH 中的 v2dat，或使用仓库内同目录的 ./v2dat
+/v2dat
+
+# 编辑器/系统残留
+*.bak
+*.swp
+.DS_Store

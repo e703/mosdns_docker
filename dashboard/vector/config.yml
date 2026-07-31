@@ -1,0 +1,82 @@
+data_dir: /tmp/vector
+
+sources:
+  mosdns_logs:
+    type: file
+    include:
+      - /var/log/mosdns.log
+    read_from: end
+
+transforms:
+  parsed_logs:
+    type: remap
+    inputs:
+      - mosdns_logs
+    drop_on_error: true 
+    source: |
+      .app = "mosdns"
+      
+      # 增加安全防护：确认 .message 存在且为字符串才进行解析
+      if exists(.message) && is_string(.message) {
+          # 修复 E620：去掉 split 的感叹号
+          parts = split(string!(.message), "\t")
+          
+          # 确保数组长度足够，防止越界
+          if length(parts) >= 4 {
+              .Time = parse_timestamp(parts[0], "%Y-%m-%dT%H:%M:%S%.fZ") ?? now()
+              .level = parts[1]
+              .processor = parts[2]    
+              .message = parts[3]      
+
+              if exists(parts[4]) {
+                  metadata = parse_json(parts[4]) ?? {}
+                  . = merge!(., metadata)
+              }
+
+              if exists(.query) {
+                  query_data = parse_regex(.query, r'^(?P<domain>\S+)\s+(?P<class>\S+)\s+(?P<record>\S+)\s+from\s+(?P<client_ip>[^:]+)') ?? {}
+                  
+                  if exists(query_data.domain) {
+                      domain_str = string!(query_data.domain)
+                      .qname = replace(domain_str, r'\.$', "")
+                      .client = query_data.client_ip
+                  }
+              }
+          }
+      }
+
+#transforms:
+#  parsed_logs:
+#    type: remap
+#    inputs:
+#      - mosdns_logs
+#    source: |
+#      .app = "mosdns"
+#      parts = split(.message, r'\t')
+#      
+#      .Time = parse_timestamp(parts[0], "%Y-%m-%dT%H:%M:%S%.fZ") ?? now()
+#      .level = parts[1]
+#      .processor = parts[2]    # 匹配大盘字段
+#      .message = parts[3]      # 匹配大盘字段，例如 "forward_local", "reject_adlist"
+#
+#      if exists(parts[4]) {
+#          metadata = parse_json(parts[4]) ?? {}
+#          . = merge(., metadata)
+#      }
+#
+#      if exists(.query) {
+#          query_data = parse_regex(.query, r'^(?P<domain>\S+)\s+(?P<class>\S+)\s+(?P<record>\S+)\s+from\s+(?P<client_ip>[^:]+)') ?? {}
+#          .qname = strip_whitespace(query_data.domain, side: "right", chars: ".") # 匹配大盘的 qname
+#          .client = query_data.client_ip                                          # 匹配大盘的 client
+#      }
+
+sinks:
+  loki_sink:
+    type: loki
+    inputs:
+      - parsed_logs
+    endpoint: "http://loki:3100"
+    encoding:
+      codec: json
+    labels:
+      app: "mosdns"
