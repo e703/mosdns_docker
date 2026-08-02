@@ -76,8 +76,10 @@ plugins:
     args:
       - exec: $ecs_cn
       - exec: $dns_cn_seq
-      - matches: "!resp_ip $geoip_cn" # 响应非 cn ip
-        exec: drop_resp # 丢弃
+      - matches: "!resp_ip $geoip_cn" # 响应为非 cn ip 时转国外 DNS 重新查，不再直接 drop
+        # exec: drop_resp # 丢弃
+        exec: $dns_nocn_seq
+
 
   # query nocn 域名
   - tag: query_nocn
@@ -87,7 +89,8 @@ plugins:
       - exec: prefer_ipv4
       - exec: $dns_nocn_seq
       - matches: "resp_ip $geoip_cn" # 响应为 cn ip
-        exec: drop_resp # 丢弃
+        exec: $dns_cn_seq
+      # exec: drop_resp # 丢弃
 
   # query lan
   - tag: query_lan
